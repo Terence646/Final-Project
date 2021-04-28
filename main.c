@@ -118,18 +118,18 @@ void main(void)
             //for(j = 0; j<2; j++){
                 for(angle=45; angle<135; angle++){
                     servo_write(servos[0][0], angle); //URA
-                    servo_write(servos[1][0], angle); //LLA
+                    servo_write(servos[1][1], angle); //LLA
                     for(k=0; k<1000;k++);
-                    servo_write(servos[2][0], angle); //URA
-                    servo_write(servos[3][0], angle); //LLA
+                    servo_write(servos[1][0], angle); //ULA
+                    servo_write(servos[0][1], angle); //LRA
                 }
 
                 for(angle=135; angle>45; angle--){
                     servo_write(servos[0][0], angle); //URA
-                    servo_write(servos[1][0], angle); //LLA
+                    servo_write(servos[1][1], angle); //LLA
                     for(k=0; k<1000;k++);
-                    servo_write(servos[2][0], angle); //URA
-                    servo_write(servos[3][0], angle); //LLA
+                    servo_write(servos[1][0], angle); //ULA
+                    servo_write(servos[0][1], angle); //LRA
                 }
             }
 }
