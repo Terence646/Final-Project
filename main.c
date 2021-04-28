@@ -1,119 +1,20 @@
-
-//ATTENTION!!!!
-//PLEASE IGNORE BELOW DIAGRAM!!!
-//THis diagram was back when I was using my own Naming Convention
-//Check servo.h for servo channels
-
-
-
-/*This Program is designed to allow all the servos to be attached
- * to the skeleton in a predictable way.
- *
- * In order to have proper orientation and operation of the robot,
- * a consistent convention must be established. Below is a top-down
- * view of the robot. The boxes represent each servo and the name
- * assigned to it. Each Group (A-D) represents a limb, while each
- * number represents a joint (1 is shoulder, 2 is knee)
- *
- *    ____                         ____
- *   /    \                       /    \
- *  /  A2  \      TOP-DOWN       /  B2  \
- *  \______/                     \______/
- *         \ ______       ______ /
- *          |      |     |      |
- *          |  A1  |     |  B1  |
- *          |______|     |______|
- *              |           |
- *  FRONT ------------------------- BACK
- *           ___|__       __|___
- *          |      |     |      |
- *          |  D1  |     |  C1  |
- *          |______|     |______|
- *     ____/                     \____
- *    /    \                     /    \
- *   /  D2  \                   /  C2  \
- *   \______/                   \______/
- *
- * It is very important that all the Shoulder-Knee joints get assembled
- * EXACTLY the same. This will guarantee that all the Knee servos behave
- * the same.
- *
- * When the program is initially started, the servos will move to their
- * center postiton (90 degrees).
- *
- * For the first time using this program
- * MAKE SURE THAT NO SERVOS ARE SECURED TO THE SKELETON!! There is a
- * serious risk that the servos will collide with each other if they
- * aren't secured in the correct position.
- *
- * Once all the servos are centered, it is time to attach the servos
- * the skeleton in what is called the Neutral Position. In the Neutral
- * Position, the horn of the servo should be be in-line or parallel to
- * the body of the servo (or as close as possible). The Horn of the
- * servo is used to secure the servo in the correct position
- *
- * Below is the pinning information to connect servos to PCA9685 board
- *
- *   A1-->Group A, servo 1 to servo pin 0 (of PCA9685)
- *   A2-->Group A, servo 2 to servo pin 1 (of PCA9685)
- *   B1-->Group B, servo 1 to servo pin 2 (of PCA9685)
- *   B2-->Group B, servo 2 to servo pin 3 (of PCA9685)
- *   C1-->Group C, servo 1 to servo pin 4 (of PCA9685)
- *   C2-->Group C, servo 2 to servo pin 5 (of PCA9685)
- *   D1-->Group D, servo 1 to servo pin 6 (of PCA9685)
- *   D2-->Group D, servo 2 to servo pin 7 (of PCA9685)
- *
- * Once all the servos are secured in the Neutral Position,
- * pressing the button (S1) on the MSP432 will cause the robot to stand
- * up.
- *
- * IF THE ROBOT DOES NOT STAND UP CORRECTLY, SOMETHING ELSE IS WRONG!
- * Check:
- *       -Servo Orientation at the knee joints
- *       -Wiring to PCA
- *       -Servo Neutral Position
- *
- * MSP Wiring:
- *
- *         msp432p401r
- *      -----------------
- *     |                 |
- *     |                 |
- *     |             P1.7|-->SCL (PCA9685)
- *     |             P1.6|-->SDA (PCA9685)
- *     |                 |
- *     |                 |
- *     |              3V3|-->VCC (PCA9685)
- *     |              GND|-->GND (PCA9685)
- *     |                 |
- *     |_________________|
- *
- *
- *
- *  By: Tyler Davidson
- *  Date: July 17th, 2020
- *
- *
- *
- */
-
 #include "msp.h"
-#include "i2c.h"
-#include "pca9685.h"
 #include "servo.h"
-#include "stIMU.h"
-#include "stdio.h"
+
 
 
 
 volatile int state = 0;
-
+const int servos[4][2] = { {URA,LRA} , {ULA,LLA} , {ULL,LLL} , {URL,LRL} };
 
 void main(void)
- {
+{
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;     // stop watchdog timer
 
     //set up Button Interrupt
+
+
+
     P1->DIR &= ~BIT1;
     P1->OUT |= BIT1;
     P1->REN |= BIT1;
@@ -121,9 +22,20 @@ void main(void)
     P1->IFG = 0;
     P1->IE  |= BIT1;
 
+
+    // Debug LED init
+    P1->OUT &= ~BIT0;
+    P1->DIR |= BIT0;
+
+    P2->OUT &= ~BIT0;
+    P2->DIR |= BIT0;
+
+
     //enable interrupts
     NVIC_EnableIRQ(PORT1_IRQn);
+
     __enable_irq();
+
 
     I2C_OPEN_STRUCT_TypeDef i2c_open_struct;
 
@@ -135,75 +47,106 @@ void main(void)
     i2c_open_struct.ucbrx = 30;                             //Prescaler for Selected Clock.
                                                             //(100kHz)
 
+
+
+    //Debug Toggle LED P1.0
+    P1->OUT |= BIT0;
     //This sets up the I2C driver to operate with the
     //correct settings.
-    //EUSCI_B0 uses P1.7 as SCL and P1.6 as SDA
-    i2c_open(EUSCI_B0, &i2c_open_struct);
+    //EUSCI_B0 uses P6.5 as SCL and P6.4 as SDA
+    i2c_open(I2C_MODULE, &i2c_open_struct);
 
-    //pca9685_init(); //sets up PCA to output at the correct frequency
-    config_LIS3MDL();
+    pca9685_init(); //sets up PCA to output at the correct frequency
 
-    int16_t mx, my, mz;
-    uint8_t data;
+    //Debug Toggle LED P2
+
+    P2->OUT |= BIT0;
+
+    P1->DIR |= BIT0;
+    P1->OUT &= ~BIT0;
+
+
+    P2->DIR |= BIT4;
+    P2->OUT &= ~BIT4;
+
+    P2->DIR |= BIT5;
+    P2->OUT &= ~BIT5;
+
+    P2->DIR |= BIT6;
+    P2->OUT &= ~BIT6;
+
+    P2->DIR |= BIT7;
+    P2->OUT &= ~BIT7;
+
+    P5->DIR |= BIT6;
+    P5->OUT &= ~BIT6;
+
+    P5->DIR |= BIT7;
+    P5->OUT &= ~BIT7;
+
+    P6->DIR |= BIT6;
+    P6->OUT &= ~BIT6;
+
+    P6->DIR |= BIT7;
+    P6->OUT &= ~BIT7;
+
+    P1->OUT |= BIT0;
+    P2->OUT |= BIT4;
+    P2->OUT |= BIT5;
+    P2->OUT |= BIT6;
+    P2->OUT |= BIT7;
+
+    P5->OUT |= BIT6;
+    P5->OUT |= BIT7;
+
+    P6->OUT |= BIT6;
+    P6->OUT |= BIT7;
+
+
+    volatile uint32_t k;
     int i;
+    int j;
+    int angle=45;
 
+    while(state == 0);
 
-    //Neutral Position
-    while(state == 0){
-        for(i=0; i<200000; i++);
-        //i2c_start(EUSCI_B0, LIS3MDL_MAG_I2C_ADDRESS, READ, &data, 1, LIS3MDL_MAG_STATUS_REG);
-        i2c_start(EUSCI_B0, LIS3MDL_MAG_I2C_ADDRESS, READ, &data, 1, LIS3MDL_MAG_STATUS_REG);
-        printf("status 1: %d\n",data);
-        for(i=0; i<1000; i++);
-        mx = read_magnetometer_x();
-        my = read_magnetometer_y();
-        mz = read_magnetometer_z();
-        printf("x: %d\n", mx);
-        printf("y: %d\n", my);
-        printf("z: %d\n", mz);
-        //printf("status: %d\n", data);
-        printf("\n");
-        printf("\n");
-        //printf("\n");
-        //printf("\n");
-    }
+    while(state == 2);      // Turn to the Right when object is Detected
 
-    //Standing Position
-    while(state == 1){
-        /*servo_write(URL,90-45); //Because the Orientations are opposite of the other servos,
-        servo_write(LRL,90-45); //the direction the servo must move to stand up is also opposote
-        servo_write(URA,90+45);
-        servo_write(LRA,90+45);
-        servo_write(ULL,90+45);
-        servo_write(LLL,90+45);
-        servo_write(ULA,90-45); //See Above Comment
-        servo_write(LLA,90-45);*/
+    while(state == 1){      //Forward Movement
 
-    }
+        //for(i = 0; i<4; i++){
+            //for(j = 0; j<2; j++){
+                for(angle=45; angle<135; angle++){
+                    servo_write(servos[0][0], angle); //URA
+                    servo_write(servos[1][0], angle); //LLA
+                    for(k=0; k<1000;k++);
+                    servo_write(servos[2][0], angle); //URA
+                    servo_write(servos[3][0], angle); //LLA
+                }
 
+                for(angle=135; angle>45; angle--){
+                    servo_write(servos[0][0], angle); //URA
+                    servo_write(servos[1][0], angle); //LLA
+                    for(k=0; k<1000;k++);
+                    servo_write(servos[2][0], angle); //URA
+                    servo_write(servos[3][0], angle); //LLA
+                }
+            }
 }
+
+
 
 
 /* Port1 ISR */
 void PORT1_IRQHandler(void){
-    volatile uint32_t j;
+    volatile uint32_t k;
 
     //Change State to Standing Position
     if(P1->IFG & BIT1)
         state = 1;
 
     // Delay for switch debounce
-    for(j = 0; j < 100000; j++)
+    for(k = 0; k < 100000; k++);
 
     P1->IFG &= ~BIT1;
 }
- /*servo_write(URL,90); //90 Degrees represents the Neutral Position
-        servo_write(LRL,90);
-        servo_write(URA,90);
-        servo_write(LRA,90);
-        servo_write(ULL,90);
-        servo_write(LLL,90);
-        servo_write(ULA,90);
-        servo_write(LLA,90);
-
-        */

@@ -18,61 +18,63 @@ uint16_t degreeConv(int degrees){
     return round(1.97*degrees + 123);
 }
 
-void servo_write(uint8_t servo, uint8_t degrees){
+void servo_write(uint8_t servoNum, int degrees){
+
+    bus_clear(I2C_MODULE);
 
     uint16_t count = degreeConv(degrees);
 
     uint8_t countH = count >> 8;
     uint8_t countL = count & LOW_MASK;
 
-    switch(servo){
+    switch(servoNum){
     case 0:
-        servo = PCA_SERVO0_BASE;
+        servoNum = PCA_SERVO0_BASE;
         break;
     case 1:
-        servo = PCA_SERVO1_BASE;
+        servoNum = PCA_SERVO1_BASE;
         break;
     case 2:
-        servo = PCA_SERVO2_BASE;
+        servoNum = PCA_SERVO2_BASE;
         break;
     case 3:
-        servo = PCA_SERVO3_BASE;
+        servoNum = PCA_SERVO3_BASE;
         break;
     case 4:
-        servo = PCA_SERVO4_BASE;
+        servoNum = PCA_SERVO4_BASE;
         break;
     case 5:
-        servo = PCA_SERVO5_BASE;
+        servoNum = PCA_SERVO5_BASE;
         break;
     case 6:
-        servo = PCA_SERVO6_BASE;
+        servoNum = PCA_SERVO6_BASE;
         break;
     case 7:
-        servo = PCA_SERVO7_BASE;
+        servoNum = PCA_SERVO7_BASE;
         break;
     case 8:
-        servo = PCA_SERVO8_BASE;
+        servoNum = PCA_SERVO8_BASE;
         break;
     case 9:
-        servo = PCA_SERVO9_BASE;
+        servoNum = PCA_SERVO9_BASE;
         break;
     case 10:
-        servo = PCA_SERVO10_BASE;
+        servoNum = PCA_SERVO10_BASE;
         break;
     case 11:
-        servo = PCA_SERVO11_BASE;
+        servoNum = PCA_SERVO11_BASE;
         break;
     case 12:
-        servo = PCA_SERVO12_BASE;
+        servoNum = PCA_SERVO12_BASE;
         break;
     case 13:
-        servo = PCA_SERVO13_BASE;
+        servoNum = PCA_SERVO13_BASE;
         break;
     case 14:
-        servo = PCA_SERVO14_BASE;
+        servoNum = PCA_SERVO14_BASE;
         break;
     case 15:
-        servo = PCA_SERVO15_BASE;
+        servoNum = PCA_SERVO15_BASE;
         break;
     default:
         assert(false);
@@ -80,31 +82,38 @@ void servo_write(uint8_t servo, uint8_t degrees){
 
     uint8_t payload[2];
 
-    payload[0] = servo;
+    payload[0] = servoNum;
     payload[1] = 0x00;
 
-    i2c_start(EUSCI_B0, PCA_ADDRESS, WRITE, payload, 2, 0x00); //ON_L
+    i2c_start(I2C_MODULE, PCA_ADDRESS, WRITE, payload, 2, 0x00); //ON_L
 
-    servo++;
+    servoNum++;
 
-    payload[0] = servo;
+    payload[0] = servoNum;
     payload[1] = 0x00;
 
-    i2c_start(EUSCI_B0, PCA_ADDRESS, WRITE, payload, 2, 0x00); //ON_H
+    i2c_start(I2C_MODULE, PCA_ADDRESS, WRITE, payload, 2, 0x00); //ON_H
 
-    servo++;
+    servoNum++;
 
-    payload[0] = servo;
+    payload[0] = servoNum;
     payload[1] = countL;
 
-    i2c_start(EUSCI_B0, PCA_ADDRESS, WRITE, payload, 2, 0x00); //OFF_L
+    i2c_start(I2C_MODULE, PCA_ADDRESS, WRITE, payload, 2, 0x00); //OFF_L
 
-    servo++;
+    servoNum++;
 
-    payload[0] = servo;
+    payload[0] = servoNum;
     payload[1] = countH;
 
-    i2c_start(EUSCI_B0, PCA_ADDRESS, WRITE, payload, 2, 0x00); //OFF_H
+    i2c_start(I2C_MODULE, PCA_ADDRESS, WRITE, payload, 2, 0x00); //OFF_H
+
+    uint8_t data;
+
+    i2c_start(I2C_MODULE, PCA_ADDRESS, READ, &data, 1, servoNum); //Adding this to fix a bug I was having with the Right Leg
+
+
+
 
 }
 
@@ -112,21 +121,24 @@ void servo_write(uint8_t servo, uint8_t degrees){
 
 void pca9685_init(void){
 
+    bus_clear(I2C_MODULE);
+
     //set PWM frequency
     uint8_t array[2];
 
     array[0] = PCA_MODE1;
     array[1] = PCA_MODE1_SLEEP;
-    i2c_start(EUSCI_B0, PCA_ADDRESS, WRITE, array, 2, 0x00);
-    i2c_start(EUSCI_B0, PCA_ADDRESS, WRITE, array, 2, 0x00);
+    i2c_start(I2C_MODULE, PCA_ADDRESS, WRITE, array, 2, 0x00);
+    i2c_start(I2C_MODULE, PCA_ADDRESS, WRITE, array, 2, 0x00);
 
     array[0] = PCA_PRE_SCALE;
     array[1] = PRESCALER_50HZ;
-    i2c_start(EUSCI_B0, PCA_ADDRESS, WRITE, array, 2, 0x00);
+    i2c_start(I2C_MODULE, PCA_ADDRESS, WRITE, array, 2, 0x00);
 
     array[0] = PCA_MODE1;
     array[1] = 0x00;
-    i2c_start(EUSCI_B0, PCA_ADDRESS, WRITE, array, 2, 0x00);
+    i2c_start(I2C_MODULE, PCA_ADDRESS, WRITE, array, 2, 0x00);
+    i2c_start(I2C_MODULE, PCA_ADDRESS, WRITE, array, 2, 0x00);
 
 }
 

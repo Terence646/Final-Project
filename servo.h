@@ -1,8 +1,8 @@
 /*
  * servo.h
  *
- *  Created on: Apr 14, 2021
- *      Author: terencewilliams
+ *  Created on: Jul 14, 2020
+ *      Author: Tyler Davidson
  */
 
 #ifndef SERVO_H_
@@ -27,6 +27,27 @@
 //URA-> Upper Right Arm
 //LLL-> Lower Left Leg
 //etc.
+
+#define RA          0
+#define LA          1
+#define LL          2
+#define RL          3
+
+
+
+
+#define KEEP        9999
+#define A1          35      //length of femur
+#define A2          75      //length of tibia
+
+float               speed;  //overall speed
+
+void servo_timer_init(void);
+void set_pos(int limb, float x, float y, float z);
+void wait_reach(int limb);
+void wait_all_reach(void);
+void servo_service(void);
+void servo_startup(void);
 
 
 #endif /* SERVO_H_ */

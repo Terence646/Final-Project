@@ -21,7 +21,8 @@
 
 #define PRESCALER_50HZ  0x79
 
-#define PCA_ADDRESS     0x5a
+#define PCA_ADDRESS     0x40
+#define I2C_MODULE      EUSCI_B1
 
 #define MAX_COUNT       4095
 #define HIGH_MASK       0xf00
@@ -49,7 +50,7 @@
 #define     PCA_SERVO0_OFF_H        0x09
 
 //SERVO1
-#define     PCA_SERVO1_BASE          0x0a
+#define     PCA_SERVO1_BASE         0x0a
 #define     PCA_SERVO1_ON_L         0x0a
 #define     PCA_SERVO1_ON_H         0x0b
 #define     PCA_SERVO1_OFF_L        0x0c
@@ -77,7 +78,7 @@
 #define     PCA_SERVO4_OFF_H        0x19
 
 //SERVO5
-#define     PCA_SERVO5_BASE          0x1a
+#define     PCA_SERVO5_BASE         0x1a
 #define     PCA_SERVO5_ON_L         0x1a
 #define     PCA_SERVO5_ON_H         0x1b
 #define     PCA_SERVO5_OFF_L        0x1c
@@ -140,7 +141,7 @@
 #define     PCA_SERVO13_OFF_H       0x3d
 
 //SERVO14
-#define     PCA_SERVO14_BASE          0x3e
+#define     PCA_SERVO14_BASE        0x3e
 #define     PCA_SERVO14_ON_L        0x3e
 #define     PCA_SERVO14_ON_H        0x3f
 #define     PCA_SERVO14_OFF_L       0x40
@@ -227,7 +228,7 @@
 
 
 
-void servo_write(uint8_t servo, uint8_t degrees);
+void servo_write(uint8_t servoNum, int degrees);
 void pca9685_init(void);
 
 
