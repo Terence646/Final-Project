@@ -124,6 +124,10 @@ void main(void)
 
     while(state == 2);      // Turn to the Right when object is Detected
 
+        //Turning gait:
+        //Right legs step backwards and then pull forward
+        //Left legs step forwards and then pull backward
+
     while(state == 1){      //Forward Movement
 
         //for(i = 0; i<4; i++){
@@ -149,7 +153,7 @@ void main(void)
             servo_write(servos[0][1], angleLRA); //LRA
             for(k=0; k<1000;k++);
         }
-        for(angleURL=20; angleULR<85; angleURL++){
+        for(angleURL=20; angleURL<85; angleURL++){
             servo_write(servos[2][0], angleURL); //Lower URL
             for(k=0; k<1000;k++);
         }

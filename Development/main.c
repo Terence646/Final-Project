@@ -124,6 +124,10 @@ void main(void)
 
     while(state == 2);      // Turn to the Right when object is Detected
 
+        //Turning gait:
+        //Right legs step backwards and then pull forward
+        //Left legs step forwards and then pull backward
+
     while(state == 1){      //Forward Movement
 
         //for(i = 0; i<4; i++){
