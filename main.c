@@ -108,17 +108,17 @@ void main(void)
 //    int j;
 
     //Leg angles
-    int angleURL = 85;
-    int angleULL = 85;
-    int angleLLL = 85;
-    int angleLRL = 85;
+    int angleURL;
+    int angleULL;
+    int angleLLL;
+    int angleLRL;
     //Arm angles
     int angleURA = 45;
     int angleULA = 45;
     int angleLLA = 45;
     int angleLRA = 45;
     //Generic angle
-    int angle
+    int angle;
 
     while(state == 0);
 
@@ -129,21 +129,18 @@ void main(void)
         //Left legs step forwards and then pull backward
 
     while(state == 1){      //Forward Movement
-
-        //for(i = 0; i<4; i++){
-            //for(j = 0; j<2; j++){
-
         //Upper right arm/leg
-        for(angleURL=85; angleULR>20; angleURL--){ //Starting condition is known
+        for(angleURL=160; angleURL<180; angleURL++){ //Starting condition is known
             servo_write(servos[2][0], angleURL); //Raise URL
             for(k=0; k<1000;k++);
         }
         for(angle=angleURA; angle<135; angle++){ //Starting condition may not be known. Implement a temporary variable to set equal to starting condition
-            angleULA = angle; //Update angleULA
+            //angleULA = angle; //Update angleULA
             angleURA = angle; //Update angleURA
             servo_write(servos[0][0], angleURA); //Move URA forward
             for(k=0; k<1000;k++);
         }
+
         for(angle = 0; angle<30; angle++){ //Move each other arm backwards
             angleULA = angleULA - angle; //Update the other angles
             angleLLA = angleLLA - angle;
@@ -153,7 +150,7 @@ void main(void)
             servo_write(servos[0][1], angleLRA); //LRA
             for(k=0; k<1000;k++);
         }
-        for(angleURL=20; angleURL<85; angleURL++){
+        for(angleURL=180; angleURL<160; angleURL--){
             servo_write(servos[2][0], angleURL); //Lower URL
             for(k=0; k<1000;k++);
         }
@@ -227,10 +224,6 @@ void main(void)
             servo_write(servos[3][1], angleLLL); //Lower LLL
             for(k=0; k<1000;k++);
         }
-
-
-
-
         /*
                 for(angle=45; angle<135; angle++){
                     servo_write(servos[0][0], angle); //URA
@@ -239,7 +232,6 @@ void main(void)
                     servo_write(servos[1][0], angle); //ULA
                     servo_write(servos[0][1], angle); //LRA
                 }
-
                 for(angle=135; angle>45; angle--){
                     servo_write(servos[0][0], angle); //URA
                     servo_write(servos[1][1], angle); //LLA
@@ -249,12 +241,13 @@ void main(void)
                 }
             }
          */
+    }
 }
 
 
 
-
 /* Port1 ISR */
+
 void PORT1_IRQHandler(void){
     volatile uint32_t k;
 
